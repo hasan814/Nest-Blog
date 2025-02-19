@@ -8,10 +8,9 @@ import { AuthDto } from './dto/auth.dto';
 @ApiTags("Auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
-  @Post('user-existence')
-  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
-  userExistence(@Body() authDto: AuthDto) {
+  @Post("user-existence")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded)
+  userExistance(@Body() authDto: AuthDto) {
     return this.authService.userExistence(authDto)
   }
-
 }
