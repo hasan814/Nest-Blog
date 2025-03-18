@@ -20,7 +20,7 @@ export class TokenService {
   }
 
   createAccessToken(payload: TAccessTokenPayload) {
-    const token = this.jwtService.sign(payload, { secret: process.env.ACESS_TOKEN_SECRET, expiresIn: "1y" })
+    const token = this.jwtService.sign(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: "1y" })
     return token
   }
 
