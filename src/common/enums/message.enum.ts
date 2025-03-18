@@ -26,6 +26,7 @@ export enum ValidationMessage {
 }
 
 export enum PublicMessage {
+  Created = "Created Successfully",
   SentOtp = "OTP sent successfully!",
   LoggedIn = "You have successfully logged in.",
   VerifiedSuccessfully = "Verification was successful!",
