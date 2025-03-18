@@ -17,6 +17,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Response } from 'express';
+import { CookieKeys } from 'src/common/enums/cookie.enum';
+import { AuthResponse } from './types/response';
 
 @Injectable()
 export class AuthService {
@@ -30,27 +33,31 @@ export class AuthService {
     private tokenService: TokenService
   ) { }
 
-  userExistence(authDto: AuthDto) {
+  async userExistence(authDto: AuthDto, res: Response) {
     const { method, type, username } = authDto;
+    let result: AuthResponse;
     switch (type) {
       case AuthType.Login:
-        return this.login(method, username);
+        result = await this.login(method, username);
+        return this.sendResponse(res, result)
       case AuthType.Register:
-        return this.register(method, username);
+        result = await this.register(method, username);
+        return this.sendResponse(res, result)
       default:
         throw new UnauthorizedException();
     }
   }
 
-  async login(method: AuthMethod, username: string) {
+  async login(method: AuthMethod, username: string): Promise<AuthResponse> {
     const validUsername = this.usernameValidation(method, username);
     const user = await this.checkExistUser(method, validUsername);
     if (!user) throw new UnauthorizedException(AuthMessage.NotFoundAccount);
     const otp = await this.saveOtp(user.id)
-    return { message: "OTP sent Successfully", userId: user.id, code: otp.code }
+    const token = this.tokenService.createOtpToken({ userId: user.id })
+    return { token, code: otp.code }
   }
 
-  async register(method: AuthMethod, username: string) {
+  async register(method: AuthMethod, username: string): Promise<AuthResponse> {
     const validUsername = this.usernameValidation(method, username);
     let user = await this.checkExistUser(method, validUsername);
     if (user) throw new ConflictException(AuthMessage.AlreadyExistAccount);
@@ -60,7 +67,14 @@ export class AuthService {
     user.username = `m_${user.id}`
     await this.userRepository.save(user)
     const otp = await this.saveOtp(user.id)
-    return { userId: user.id, code: otp.code }
+    const token = this.tokenService.createOtpToken({ userId: user.id })
+    return { token, code: otp.code }
+  }
+
+  async sendResponse(res: Response, result: AuthResponse) {
+    const { token, code } = result
+    res.cookie(CookieKeys.OTP, token, { httpOnly: true })
+    res.json({ message: "OTP sent Successfully", code })
   }
 
   async checkOtp() { }
