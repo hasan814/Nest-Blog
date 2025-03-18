@@ -1,27 +1,30 @@
-import { AuthMessage, BadRequestMessage } from 'src/common/enums/message.enum';
+import { AuthMessage, BadRequestMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { isEmail, isMobilePhone } from 'class-validator';
+import { Request, Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileEntity } from '../user/entities/profile.entity';
+import { AuthResponse } from './types/response';
 import { TokenService } from './token.service';
 import { AuthMethod } from './enums/method.enum';
+import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { OtpEntity } from '../user/entities/otp.entity';
 import { randomInt } from 'crypto';
 import { AuthType } from './enums/type.enum';
 import { AuthDto } from './dto/auth.dto';
+import { REQUEST } from '@nestjs/core';
 
 import {
-  BadRequestException,
-  ConflictException,
+  Scope,
+  Inject,
   Injectable,
+  ConflictException,
+  BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Response } from 'express';
-import { CookieKeys } from 'src/common/enums/cookie.enum';
-import { AuthResponse } from './types/response';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
@@ -30,6 +33,7 @@ export class AuthService {
     private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity)
     private otpRepository: Repository<OtpEntity>,
+    @Inject(REQUEST) private request: Request,
     private tokenService: TokenService
   ) { }
 
@@ -73,11 +77,15 @@ export class AuthService {
 
   async sendResponse(res: Response, result: AuthResponse) {
     const { token, code } = result
-    res.cookie(CookieKeys.OTP, token, { httpOnly: true })
-    res.json({ message: "OTP sent Successfully", code })
+    res.cookie(CookieKeys.OTP, token, { httpOnly: true, expires: new Date(Date.now() + (1000 * 60 * 2)) })
+    res.json({ message: PublicMessage.SentOtp, code })
   }
 
-  async checkOtp() { }
+  async checkOtp(code: string) {
+    const token = this.request.cookies?.[CookieKeys.OTP]
+    if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode)
+    return token
+  }
 
   async saveOtp(userId: number) {
     const code = randomInt(10000, 99999).toString()
