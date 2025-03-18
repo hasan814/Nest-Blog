@@ -1,17 +1,32 @@
-
 export enum BadRequestMessage {
-  InValidLoginData = "Information Data is not Correct for Login",
-  InValidRegisterData = "Information Data is not Correct for Register"
+  InvalidLoginData = "The provided login information is incorrect.",
+  InvalidRegisterData = "The provided registration data is incorrect.",
 }
+
 export enum AuthMessage {
-  NotFoundAccount = "Account is not Found",
-  TryAgain = "Try Again!",
-  AlreadyExistAccount = "Account is already Regsiter",
-  ExpiredCode = "Code was Expired and try again!"
+  TryAgain = "An error occurred. Please try again!",
+  LoginAgain = "Your session has expired. Please log in again.",
+  NotFoundAccount = "No account was found with the provided details.",
+  ExpiredCode = "The verification code has expired. Please request a new one.",
+  AlreadyExistAccount = "An account with this information already exists.",
 }
-export enum NotFoundMessage { }
-export enum ValidationMessage { }
+
+export enum NotFoundMessage {
+  UserNotFound = "The specified user was not found.",
+  OtpNotFound = "OTP record not found.",
+  ResourceNotFound = "The requested resource was not found.",
+}
+
+export enum ValidationMessage {
+  InvalidEmailFormat = "The email format is incorrect.",
+  InvalidPhoneNumberFormat = "The phone number format is incorrect.",
+  RequiredFieldMissing = "A required field is missing.",
+  PasswordTooWeak = "The provided password is too weak. Please use a stronger password.",
+}
 
 export enum PublicMessage {
-  SentOtp = "OTP sent Successfully!"
+  SentOtp = "OTP sent successfully!",
+  LoggedIn = "You have successfully logged in.",
+  VerifiedSuccessfully = "Verification was successful!",
+  LogoutSuccess = "You have been logged out successfully.",
 }

@@ -65,7 +65,7 @@ export class AuthService {
     const validUsername = this.usernameValidation(method, username);
     let user = await this.checkExistUser(method, validUsername);
     if (user) throw new ConflictException(AuthMessage.AlreadyExistAccount);
-    if (method === AuthMethod.Username) throw new BadRequestException(BadRequestMessage.InValidRegisterData)
+    if (method === AuthMethod.Username) throw new BadRequestException(BadRequestMessage.InvalidRegisterData)
     user = this.userRepository.create({ [method]: username })
     user = await this.userRepository.save(user)
     user.username = `m_${user.id}`
@@ -84,7 +84,13 @@ export class AuthService {
   async checkOtp(code: string) {
     const token = this.request.cookies?.[CookieKeys.OTP]
     if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode)
-    return token
+    const { userId } = this.tokenService.verifyOtpToken(token)
+    const otp = await this.otpRepository.findOneBy({ userId })
+    if (!otp) throw new UnauthorizedException(AuthMessage.TryAgain)
+    const now = new Date()
+    if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredCode)
+    if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryAgain)
+    return { message: PublicMessage.LoggedIn }
   }
 
   async saveOtp(userId: number) {
@@ -126,7 +132,7 @@ export class AuthService {
       [AuthMethod.Username]: 'username',
     };
     const field = fieldMap[method];
-    if (!field) throw new BadRequestException(BadRequestMessage.InValidLoginData);
+    if (!field) throw new BadRequestException(BadRequestMessage.InvalidLoginData);
     const user = await this.userRepository.findOneBy({ [field]: username });
     if (user) return user;
     return null;
