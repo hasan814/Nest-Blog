@@ -9,6 +9,7 @@ export enum AuthMessage {
   NotFoundAccount = "No account was found with the provided details.",
   ExpiredCode = "The verification code has expired. Please request a new one.",
   AlreadyExistAccount = "An account with this information already exists.",
+  LoginRequired = "You must be logged in to access this resource.",
 }
 
 export enum NotFoundMessage {

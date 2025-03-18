@@ -24,12 +24,13 @@ export class TokenService {
     return token
   }
 
-  verifyAccessToken(payload: TCookiePayload) {
+  verifyAccessToken(token: string): TAccessTokenPayload {
     try {
-      return this.jwtService.sign(payload, { secret: process.env.ACESS_TOKEN_SECRET })
+      return this.jwtService.verify<TAccessTokenPayload>(token, { secret: process.env.ACCESS_TOKEN_SECRET });
     } catch (error) {
-      throw new UnauthorizedException(AuthMessage.LoginAgain)
+      throw new UnauthorizedException(AuthMessage.LoginAgain);
     }
   }
+
 
 }

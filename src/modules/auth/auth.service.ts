@@ -111,6 +111,26 @@ export class AuthService {
     return otp
   }
 
+  async checkExistUser(method: AuthMethod, username: string): Promise<UserEntity | null> {
+    const fieldMap = {
+      [AuthMethod.Phone]: 'phone',
+      [AuthMethod.Email]: 'email',
+      [AuthMethod.Username]: 'username',
+    };
+    const field = fieldMap[method];
+    if (!field) throw new BadRequestException(BadRequestMessage.InvalidLoginData);
+    const user = await this.userRepository.findOneBy({ [field]: username });
+    if (user) return user;
+    return null;
+  }
+
+  async validateAccessToken(token: string) {
+    const { userId } = this.tokenService.verifyAccessToken(token)
+    const user = await this.userRepository.findOneBy({ id: userId })
+    if (!user) throw new UnauthorizedException(AuthMessage.LoginAgain)
+    return user
+  }
+
   usernameValidation(method: AuthMethod, username: string) {
     switch (method) {
       case AuthMethod.Email:
@@ -126,16 +146,4 @@ export class AuthService {
     }
   }
 
-  async checkExistUser(method: AuthMethod, username: string): Promise<UserEntity | null> {
-    const fieldMap = {
-      [AuthMethod.Phone]: 'phone',
-      [AuthMethod.Email]: 'email',
-      [AuthMethod.Username]: 'username',
-    };
-    const field = fieldMap[method];
-    if (!field) throw new BadRequestException(BadRequestMessage.InvalidLoginData);
-    const user = await this.userRepository.findOneBy({ [field]: username });
-    if (user) return user;
-    return null;
-  }
 }
