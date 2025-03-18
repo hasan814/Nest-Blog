@@ -16,6 +16,8 @@ export enum NotFoundMessage {
   UserNotFound = "The specified user was not found.",
   OtpNotFound = "OTP record not found.",
   ResourceNotFound = "The requested resource was not found.",
+  NotFoundPost = "The requested post was not found.",
+  NotFoundCategory = "The requested category was not found.",
 }
 
 export enum ValidationMessage {
@@ -26,12 +28,16 @@ export enum ValidationMessage {
 }
 
 export enum PublicMessage {
-  Created = "Created Successfully",
+  Created = "Created successfully.",
+  Deleted = "Deleted successfully.",
+  Updated = "Updated successfully.",
+  Inserted = "Inserted successfully.",
   SentOtp = "OTP sent successfully!",
   LoggedIn = "You have successfully logged in.",
   VerifiedSuccessfully = "Verification was successful!",
   LogoutSuccess = "You have been logged out successfully.",
 }
+
 
 export enum ConflictMessage {
   categoryTitle = "A category with this title already exists.",
