@@ -2,10 +2,12 @@ import { AuthMessage, BadRequestMessage } from 'src/common/enums/message.enum';
 import { isEmail, isMobilePhone } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileEntity } from '../user/entities/profile.entity';
+import { TokenService } from './token.service';
 import { AuthMethod } from './enums/method.enum';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { OtpEntity } from '../user/entities/otp.entity';
+import { randomInt } from 'crypto';
 import { AuthType } from './enums/type.enum';
 import { AuthDto } from './dto/auth.dto';
 
@@ -15,7 +17,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { randomInt } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,7 @@ export class AuthService {
     private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity)
     private otpRepository: Repository<OtpEntity>,
+    private tokenService: TokenService
   ) { }
 
   userExistence(authDto: AuthDto) {
@@ -45,7 +47,7 @@ export class AuthService {
     const user = await this.checkExistUser(method, validUsername);
     if (!user) throw new UnauthorizedException(AuthMessage.NotFoundAccount);
     const otp = await this.saveOtp(user.id)
-    return { code: otp.code }
+    return { message: "OTP sent Successfully", userId: user.id, code: otp.code }
   }
 
   async register(method: AuthMethod, username: string) {
@@ -58,10 +60,11 @@ export class AuthService {
     user.username = `m_${user.id}`
     await this.userRepository.save(user)
     const otp = await this.saveOtp(user.id)
-    return { code: otp.code }
+    return { userId: user.id, code: otp.code }
   }
 
   async checkOtp() { }
+
   async saveOtp(userId: number) {
     const code = randomInt(10000, 99999).toString()
     const expiresIn = new Date(Date.now() + (1000 * 60 * 2))
