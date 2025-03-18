@@ -1,6 +1,7 @@
 import { ConflictMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.utils';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -25,7 +26,9 @@ export class CategoryService {
     return title
   }
 
-  findAll(paginationDto: PaginationDto) {
-    return this.categoryRepository.findBy({})
+  async findAll(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto)
+    const [categories, count] = await this.categoryRepository.findAndCount({ where: {}, skip, take: limit })
+    return { pagination: paginationGenerator(count, page, limit), categories }
   }
 }
