@@ -124,11 +124,16 @@ export class AuthService {
     return null;
   }
 
-  async validateAccessToken(token: string) {
-    const { userId } = this.tokenService.verifyAccessToken(token)
-    const user = await this.userRepository.findOneBy({ id: userId })
-    if (!user) throw new UnauthorizedException(AuthMessage.LoginAgain)
-    return user
+  async validateAccessToken(token: string): Promise<UserEntity> {
+    try {
+      const { userId } = this.tokenService.verifyAccessToken(token);
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (!user) throw new UnauthorizedException(AuthMessage.LoginAgain);
+      return user;
+    } catch (error) {
+      console.error("Token verification failed:", error.message);
+      throw new UnauthorizedException(AuthMessage.LoginAgain);
+    }
   }
 
   usernameValidation(method: AuthMethod, username: string) {
