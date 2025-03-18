@@ -1,4 +1,5 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm"
+import { CategoryEntity } from "src/modules/category/entities/category.entity"
 import { ProfileEntity } from "src/modules/user/entities/profile.entity"
 import { UserEntity } from "src/modules/user/entities/user.entity"
 import { OtpEntity } from "src/modules/user/entities/otp.entity"
@@ -15,6 +16,6 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
     database: DB_NAME,
     autoLoadEntities: false,
     synchronize: true,
-    entities: [UserEntity, ProfileEntity, OtpEntity]
+    entities: [UserEntity, ProfileEntity, OtpEntity, CategoryEntity]
   }
 }

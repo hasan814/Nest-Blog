@@ -32,3 +32,7 @@ export enum PublicMessage {
   VerifiedSuccessfully = "Verification was successful!",
   LogoutSuccess = "You have been logged out successfully.",
 }
+
+export enum ConflictMessage {
+  categoryTitle = "A category with this title already exists.",
+}
