@@ -11,5 +11,6 @@ namespace NodeJS {
     // ======= DataBase =========
     COOKIE_SECRET: string
     OTP_TOKEN_SECRET: string
+    ACESS_TOKEN_SECRET: string
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { TCookiePayload } from "./types/payload";
+import { TAccessTokenPayload, TCookiePayload } from "./types/payload";
 import { AuthMessage } from "src/common/enums/message.enum";
 import { JwtService } from "@nestjs/jwt";
 
@@ -11,12 +11,25 @@ export class TokenService {
     const token = this.jwtService.sign(payload, { secret: process.env.OTP_TOKEN_SECRET, expiresIn: 60 * 2 })
     return token
   }
-
-  verifyOtpToken(token: string): TCookiePayload {
+  verifyOtpToken(token: string): TAccessTokenPayload {
     try {
       return this.jwtService.verify(token, { secret: process.env.OTP_TOKEN_SECRET })
     } catch (error) {
       throw new UnauthorizedException(AuthMessage.TryAgain)
     }
   }
+
+  createAccessToken(payload: TAccessTokenPayload) {
+    const token = this.jwtService.sign(payload, { secret: process.env.ACESS_TOKEN_SECRET, expiresIn: "1y" })
+    return token
+  }
+
+  verifyAccessToken(payload: TCookiePayload) {
+    try {
+      return this.jwtService.sign(payload, { secret: process.env.ACESS_TOKEN_SECRET })
+    } catch (error) {
+      throw new UnauthorizedException(AuthMessage.LoginAgain)
+    }
+  }
+
 }
