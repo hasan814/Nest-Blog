@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CategoryService } from './category.service';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enums';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { Pagination } from 'src/common/decorators/pagination.decorator';
 
 @Controller('category')
 @ApiTags("category")
@@ -16,7 +18,8 @@ export class CategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  @Pagination()
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.categoryService.findAll(paginationDto);
   }
 }

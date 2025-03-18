@@ -3,6 +3,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -24,7 +25,7 @@ export class CategoryService {
     return title
   }
 
-  findAll() {
+  findAll(paginationDto: PaginationDto) {
     return this.categoryRepository.findBy({})
   }
 }
