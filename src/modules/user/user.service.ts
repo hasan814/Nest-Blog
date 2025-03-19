@@ -1,13 +1,16 @@
-import { ConflictException, Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
-import { ConflictMessage, PublicMessage } from 'src/common/enums/message.enum';
+import { BadRequestException, ConflictException, Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
+import { AuthMessage, BadRequestMessage, ConflictMessage, NotFoundMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { Repository, DeepPartial } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TProfileImages } from './types/file';
 import { ProfileEntity } from './entities/profile.entity';
 import { TokenService } from '../auth/token.service';
 import { AuthService } from '../auth/auth.service';
+import { AuthMethod } from '../auth/enums/method.enum';
 import { ProfileDto } from './dto/profile.dto';
 import { UserEntity } from './entities/user.entity';
+import { CookieKeys } from 'src/common/enums/cookie.enum';
+import { OtpEntity } from './entities/otp.entity';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { isDate } from 'class-validator';
@@ -18,6 +21,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
+    @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
     @Inject(REQUEST) private request: Request,
     private authService: AuthService,
     private tokenService: TokenService
@@ -91,11 +95,36 @@ export class UserService {
     const existingUser = await this.userRepository.findOneBy({ email });
     if (existingUser && existingUser.id !== loggedInUser.id) throw new ConflictException(ConflictMessage.Email);
     else if (existingUser && existingUser.id === loggedInUser.id) return { message: PublicMessage.Updated };
-    loggedInUser.new_email = email;
-    await this.userRepository.save(loggedInUser);
-    const otp = await this.authService.saveOtp(loggedInUser.id);
+    await this.userRepository.update({ id: loggedInUser.id }, { new_email: email });
+    const otp = await this.authService.saveOtp(loggedInUser.id, AuthMethod.Email);
     const token = this.tokenService.createEmailToken({ email });
     return { code: otp.code, token };
+  }
+
+  async verifyEmail(code: string) {
+    const user = this.request.user as UserEntity | undefined;
+    if (!user) throw new UnauthorizedException('User not found in request.');
+    const { id: userId, new_email } = user;
+    const token = this.request.cookies?.[CookieKeys.OTP];
+    if (!token) throw new BadRequestException(AuthMessage.ExpiredCode);
+    const { email } = this.tokenService.verifyEmailToken(token);
+    if (email !== new_email) throw new BadRequestException(BadRequestMessage.InvalidEmail);
+    const otp = await this.checkOtp(userId, code);
+    if (otp.method !== AuthMethod.Email) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    await this.userRepository.update(
+      { id: userId },
+      { email, verify_email: true, new_email: undefined }
+    );
+    return { message: PublicMessage.Updated };
+  }
+
+  async checkOtp(userId: number, code: string) {
+    const otp = await this.otpRepository.findOneBy({ userId });
+    if (!otp) throw new BadRequestException(NotFoundMessage.OtpNotFound);
+    const now = new Date();
+    if (otp.expiresIn < now) throw new BadRequestException(AuthMessage.ExpiredCode);
+    if (otp.code !== code) throw new BadRequestException(AuthMessage.TryAgain);
+    return otp;
   }
 
 }

@@ -1,8 +1,10 @@
 export enum BadRequestMessage {
   InvalidLoginData = "The provided login information is incorrect.",
   InvalidRegisterData = "The provided registration data is incorrect.",
-  SomeThingWrong = "Something went wrong. Please try again later."
+  SomeThingWrong = "Something went wrong. Please try again later.",
+  InvalidEmail = "The provided email is invalid. Please enter a valid email address."
 }
+
 
 
 export enum AuthMessage {
