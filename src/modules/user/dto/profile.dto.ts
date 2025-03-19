@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsMobilePhone, IsNotEmpty, IsOptional, Length } from "class-validator";
+import { IsEmail, IsEnum, IsMobilePhone, IsNotEmpty, IsOptional, Length, Matches } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { ValidationMessage } from "src/common/enums/message.enum";
 import { Gender } from "../enum/gender.enum";
@@ -48,4 +48,12 @@ export class ChangePhoneDto {
   @IsMobilePhone("fa-IR", {}, { message: ValidationMessage.InvalidPhoneNumberFormat })
   @IsNotEmpty({ message: "Phone number is required." })
   phone: string;
+}
+
+export class ChangeUsernameDto {
+  @ApiProperty({ example: "new_username", description: "The new username" })
+  @IsNotEmpty({ message: "Username is required." })
+  @Length(3, 20, { message: "Username must be between 3 and 20 characters long." })
+  @Matches(/^[a-zA-Z0-9_.]+$/, { message: "Username can only contain letters, numbers, underscores, and dots." })
+  username: string;
 }

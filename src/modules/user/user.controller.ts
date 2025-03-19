@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Patch, Post, Put, Res, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { ChangeEmailDto, ChangePhoneDto, ProfileDto } from './dto/profile.dto';
+import { ChangeEmailDto, ChangePhoneDto, ChangeUsernameDto, ProfileDto } from './dto/profile.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { cookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enums';
@@ -42,6 +42,7 @@ export class UserController {
   }
 
   @Patch("/change-email")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async changeEmail(@Body() emailDto: ChangeEmailDto, @Res({ passthrough: true }) res: Response) {
     const { code, token, message } = await this.userService.changeEmail(emailDto.email);
     if (message) return { message };
@@ -50,11 +51,13 @@ export class UserController {
   }
 
   @Post("/verify-email-otp")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async verifyEmail(@Body() otpDto: CheckOtpDto) {
     return this.userService.verifyEmail(otpDto.code)
   }
 
   @Patch("/change-phone")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async changePhone(@Body() phoneDto: ChangePhoneDto, @Res({ passthrough: true }) res: Response) {
     const { code, token, message } = await this.userService.changePhone(phoneDto.phone);
     if (message) return { message };
@@ -63,7 +66,14 @@ export class UserController {
   }
 
   @Post("/verify-phone-otp")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async verifyPhone(@Body() phoneDto: CheckOtpDto) {
     return this.userService.verifyPhone(phoneDto.code)
+  }
+
+  @Patch("/change-username")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+  async changeUsername(@Body() usernameDto: ChangeUsernameDto) {
+    return this.userService.changeUser(usernameDto.username)
   }
 }

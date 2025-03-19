@@ -152,4 +152,14 @@ export class UserService {
     return otp;
   }
 
+  async changeUser(username: string) {
+    const loggedInUser = this.request.user as UserEntity | undefined;
+    if (!loggedInUser) throw new UnauthorizedException('User not found in request.');
+    const existingUser = await this.userRepository.findOneBy({ username });
+    if (existingUser && existingUser.id !== loggedInUser.id) throw new ConflictException(ConflictMessage.Username);
+    else if (existingUser && existingUser.id === loggedInUser.id) return { message: PublicMessage.Updated };
+    await this.userRepository.update({ id: loggedInUser.id }, { username });
+    return { message: PublicMessage.Updated };
+  }
+
 }
