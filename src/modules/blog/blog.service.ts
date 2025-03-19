@@ -1,19 +1,45 @@
+import { Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
+import { createSlug, randomId } from 'src/common/utils/slug.util';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RequestWithUser } from 'src/common/types/request-with-user';
 import { CreateBlogDto } from './dto/blog.dto';
-import { Injectable } from '@nestjs/common';
+import { PublicMessage } from 'src/common/enums/message.enum';
 import { BlogEntity } from './entities/blog.entity';
 import { Repository } from 'typeorm';
-import { createSlug } from 'src/common/utils/slug.util';
+import { BlogStatus } from './enum/status.enum';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { REQUEST } from '@nestjs/core';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class BlogService {
-  constructor(@InjectRepository(BlogEntity) private blogService: Repository<BlogEntity>) { }
+  constructor(
+    @InjectRepository(BlogEntity) private blogRepository: Repository<BlogEntity>,
+    @Inject(REQUEST) private request: RequestWithUser
+  ) { }
 
-  create(blogDto: CreateBlogDto) {
-    let { title, slug } = blogDto;
-    let slugData = slug ?? title;
-    blogDto.slug = createSlug(slugData);
-    return blogDto;
+  async create(blogDto: CreateBlogDto) {
+    const user = this.request.user as UserEntity | undefined;
+    if (!user) throw new UnauthorizedException("User not found in request.");
+    let { title, slug, content, description, image, time_for_study } = blogDto;
+    blogDto.slug = createSlug(slug ?? title);
+    const isExsit = await this.checkBlogBySlug(blogDto.slug)
+    if (isExsit) slug += `-${randomId}`
+    const blog = this.blogRepository.create({
+      title,
+      slug: blogDto.slug,
+      description,
+      content,
+      image,
+      status: BlogStatus.Draft,
+      time_for_study,
+      author: user
+    });
+    await this.blogRepository.save(blog);
+    return { message: PublicMessage.Created, blog };
   }
 
+  async checkBlogBySlug(slug: string) {
+    const blog = await this.blogRepository.findOneBy({ slug })
+    return !!blog
+  }
 }

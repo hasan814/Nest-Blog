@@ -19,3 +19,6 @@ export const createSlug = (text: string): string => {
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+
+export const randomId = () => Math.random().toString(36).substring(2)
