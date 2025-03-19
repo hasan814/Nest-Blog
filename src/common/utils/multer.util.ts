@@ -3,6 +3,7 @@ import { ValidationMessage } from "../enums/message.enum";
 import { extname, join } from "path";
 import { mkdirSync } from "fs";
 import { Request } from "express";
+import { diskStorage } from "multer";
 
 export type CallbackDestination = (error: Error | null, destination: string) => void;
 export type CallbackFilename = (error: Error | null, filename: string | null) => void;
@@ -30,3 +31,10 @@ export const multerFilename = (req: Request, file: MulterFile, callback: (error:
 const isValidImageFormat = (ext: string) => {
   return [".png", ".jpg", ".jpeg"].includes(ext);
 };
+
+export const multerStorage = (folderName: string) => {
+  return diskStorage({
+    destination: multerDestination(folderName),
+    filename: multerFilename
+  })
+}
