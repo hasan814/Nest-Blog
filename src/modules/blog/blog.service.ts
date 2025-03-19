@@ -3,12 +3,14 @@ import { createSlug, randomId } from 'src/common/utils/slug.util';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RequestWithUser } from 'src/common/types/request-with-user';
 import { CreateBlogDto } from './dto/blog.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { PublicMessage } from 'src/common/enums/message.enum';
 import { BlogEntity } from './entities/blog.entity';
 import { Repository } from 'typeorm';
 import { BlogStatus } from './enum/status.enum';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { REQUEST } from '@nestjs/core';
+import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.utils';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -46,5 +48,16 @@ export class BlogService {
   async myBlog() {
     const { id } = this.request.user as UserEntity
     return this.blogRepository.find({ where: { authorId: id }, order: { id: "DESC" } })
+  }
+
+  async blogList(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto)
+    const [blogs, count] = await this.blogRepository.findAndCount({
+      where: {},
+      order: { id: "DESC" },
+      skip,
+      take: limit
+    })
+    return { pagination: paginationGenerator(count, page, limit), blogs }
   }
 }
