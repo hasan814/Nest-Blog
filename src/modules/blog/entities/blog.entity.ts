@@ -21,6 +21,12 @@ export class BlogEntity extends BaseEntity {
   @Column()
   image: string;
 
+  @Column({ unique: true })
+  slug: string;
+
+  @Column()
+  time_for_study: string;
+
   @Column({ default: BlogStatus.Draft })
   status: string;
 
