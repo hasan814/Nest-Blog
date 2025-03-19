@@ -1,5 +1,6 @@
-import { IsEnum, IsOptional, Length } from "class-validator";
-import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEmail, IsEnum, IsMobilePhone, IsNotEmpty, IsOptional, Length } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ValidationMessage } from "src/common/enums/message.enum";
 import { Gender } from "../enum/gender.enum";
 
 export class ProfileDto {
@@ -32,4 +33,19 @@ export class ProfileDto {
 
   @ApiPropertyOptional({ nullable: true })
   linkedin_profile: string
+}
+
+
+export class ChangeEmailDto {
+  @ApiProperty()
+  @IsEmail({}, { message: ValidationMessage.InvalidEmailFormat })
+  @IsNotEmpty({ message: "Email is required." })
+  email: string;
+}
+
+export class ChangePhoneDto {
+  @ApiProperty()
+  @IsMobilePhone("fa-IR", {}, { message: ValidationMessage.InvalidPhoneNumberFormat })
+  @IsNotEmpty({ message: "Phone number is required." })
+  phone: string;
 }

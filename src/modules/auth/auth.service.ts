@@ -23,6 +23,7 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { cookiesOptionsToken } from 'src/common/utils/cookie.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -79,7 +80,7 @@ export class AuthService {
 
   async sendResponse(res: Response, result: AuthResponse) {
     const { token, code } = result
-    res.cookie(CookieKeys.OTP, token, { httpOnly: true, expires: new Date(Date.now() + (1000 * 60 * 2)) })
+    res.cookie(CookieKeys.OTP, token, cookiesOptionsToken())
     res.json({ message: PublicMessage.SentOtp, code })
   }
 
