@@ -2,7 +2,8 @@ export enum BadRequestMessage {
   InvalidLoginData = "The provided login information is incorrect.",
   InvalidRegisterData = "The provided registration data is incorrect.",
   SomeThingWrong = "Something went wrong. Please try again later.",
-  InvalidEmail = "The provided email is invalid. Please enter a valid email address."
+  InvalidEmail = "The provided email is invalid. Please enter a valid email address.",
+  InvalidPhone = "The provided phone is invalid. Please enter a valid phone address."
 }
 
 
@@ -46,5 +47,6 @@ export enum PublicMessage {
 
 export enum ConflictMessage {
   categoryTitle = "A category with this title already exists.",
-  Email = "An account with this email already exists."
+  Email = "An account with this email already exists.",
+  Phone = "An account with this phone already exists."
 }

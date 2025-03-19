@@ -100,12 +100,11 @@ export class UserService {
     const token = this.tokenService.createEmailToken({ email });
     return { code: otp.code, token };
   }
-
   async verifyEmail(code: string) {
     const user = this.request.user as UserEntity | undefined;
     if (!user) throw new UnauthorizedException('User not found in request.');
     const { id: userId, new_email } = user;
-    const token = this.request.cookies?.[CookieKeys.OTP];
+    const token = this.request.cookies?.[CookieKeys.EmailOTP];
     if (!token) throw new BadRequestException(AuthMessage.ExpiredCode);
     const { email } = this.tokenService.verifyEmailToken(token);
     if (email !== new_email) throw new BadRequestException(BadRequestMessage.InvalidEmail);
@@ -115,6 +114,32 @@ export class UserService {
       { id: userId },
       { email, verify_email: true, new_email: undefined }
     );
+    return { message: PublicMessage.Updated };
+  }
+
+  async changePhone(phone: string) {
+    const loggedInUser = this.request.user as UserEntity | undefined;
+    if (!loggedInUser) throw new UnauthorizedException('User not found in request.');
+    const existingUser = await this.userRepository.findOneBy({ phone });
+    if (existingUser && existingUser.id !== loggedInUser.id) throw new ConflictException(ConflictMessage.Phone);
+    else if (existingUser && existingUser.id === loggedInUser.id) return { message: PublicMessage.Updated };
+    await this.userRepository.update({ id: loggedInUser.id }, { new_phone: phone });
+    const otp = await this.authService.saveOtp(loggedInUser.id, AuthMethod.Phone);
+    const token = this.tokenService.createPhoneToken({ phone });
+    return { code: otp.code, token };
+  }
+
+  async verifyPhone(code: string) {
+    const user = this.request.user as UserEntity | undefined;
+    if (!user) throw new UnauthorizedException('User not found in request.');
+    const { id: userId, new_phone } = user;
+    const token = this.request.cookies?.[CookieKeys.PhoneOTP];
+    if (!token) throw new BadRequestException(AuthMessage.ExpiredCode);
+    const { phone } = this.tokenService.verifyPhoneToken(token)
+    if (phone !== new_phone) throw new BadRequestException(BadRequestMessage.InvalidPhone);
+    const otp = await this.checkOtp(userId, code);
+    if (otp.method !== AuthMethod.Phone) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+    await this.userRepository.update({ id: userId }, { phone, verify_phone: true, new_phone: undefined });
     return { message: PublicMessage.Updated };
   }
 

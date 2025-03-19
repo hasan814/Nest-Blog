@@ -1,5 +1,6 @@
 import { AuthMessage, BadRequestMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { isEmail, isMobilePhone } from 'class-validator';
+import { cookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { Request, Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileEntity } from '../user/entities/profile.entity';
@@ -23,7 +24,6 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { cookiesOptionsToken } from 'src/common/utils/cookie.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
