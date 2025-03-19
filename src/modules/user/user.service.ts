@@ -1,9 +1,9 @@
 import { Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
+import { Repository, DeepPartial } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileEntity } from './entities/profile.entity';
 import { ProfileDto } from './dto/profile.dto';
 import { UserEntity } from './entities/user.entity';
-import { Repository } from 'typeorm';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { isDate } from 'class-validator';
@@ -16,16 +16,34 @@ export class UserService {
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
     @Inject(REQUEST) private request: Request
   ) { }
-  async changeProfile(files: { image_profile?: Express.Multer.File[], bg_image?: Express.Multer.File[] }, profileDto: ProfileDto) {
-    console.log("Uploaded Files:", files);
 
+  async changeProfile(
+    files: { image_profile?: Express.Multer.File[]; bg_image?: Express.Multer.File[] },
+    profileDto: ProfileDto
+  ) {
+    let { image_profile: uploadedImageProfile, bg_image: uploadedBgImage } = files;
+    if (uploadedImageProfile?.length) {
+      let image = uploadedImageProfile[0];
+      profileDto.image_profile = image.path;
+    }
+    if (uploadedBgImage?.length) {
+      let image = uploadedBgImage[0];
+      profileDto.bg_image = image.path;
+    }
     const user = this.request.user as UserEntity | undefined;
-    if (!user) throw new UnauthorizedException("User not found in request.");
-
+    if (!user) throw new UnauthorizedException('User not found in request.');
     const { id: userId, profileId } = user;
     let profile = await this.profileRepository.findOneBy({ userId });
-
-    const { bio, birthday, gender, linkedin_profile, nick_name, x_profile } = profileDto;
+    const {
+      bio,
+      birthday,
+      gender,
+      linkedin_profile,
+      nick_name,
+      x_profile,
+      image_profile,
+      bg_image,
+    } = profileDto;
 
     if (profile) {
       if (bio) profile.bio = bio;
@@ -33,24 +51,25 @@ export class UserService {
       if (gender && Object.values(Gender as any).includes(gender)) profile.gender = gender;
       if (linkedin_profile) profile.linkedin_profile = linkedin_profile;
       if (x_profile) profile.x_profile = x_profile;
+      if (image_profile) profile.image_profile = image_profile;
+      if (bg_image) profile.bg_image = bg_image;
       if (nick_name) profile.nick_name = nick_name;
     } else {
-      if (!nick_name) throw new Error("nick_name cannot be null");
-      profile = this.profileRepository.create({
+      const newProfile: DeepPartial<ProfileEntity> = {
         bio,
         birthday,
         gender,
         linkedin_profile,
         x_profile,
         nick_name,
-        userId
-      });
+        userId,
+        bg_image,
+        image_profile,
+      };
+      profile = this.profileRepository.create(newProfile);
     }
-
     profile = await this.profileRepository.save(profile);
     if (!profileId) await this.userRepository.update({ id: userId }, { profileId: profile.id });
-
     return profile;
   }
-
 }

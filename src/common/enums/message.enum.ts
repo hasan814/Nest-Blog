@@ -21,6 +21,7 @@ export enum NotFoundMessage {
 }
 
 export enum ValidationMessage {
+  InvalidImageFormat = "The image format is incorrect.",
   InvalidEmailFormat = "The email format is incorrect.",
   InvalidPhoneNumberFormat = "The phone number format is incorrect.",
   RequiredFieldMissing = "A required field is missing.",

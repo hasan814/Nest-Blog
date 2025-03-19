@@ -31,7 +31,6 @@ export class UserController {
     @UploadedFiles() files: { image_profile?: Express.Multer.File[], bg_image?: Express.Multer.File[] },
     @Body() profileDto: ProfileDto
   ) {
-    console.log("Received Files:", files);
     return this.userService.changeProfile(files, profileDto);
   }
 }
