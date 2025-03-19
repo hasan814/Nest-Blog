@@ -1,5 +1,5 @@
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enums';
 import { CreateBlogDto } from './dto/blog.dto';
 import { BlogService } from './blog.service';
@@ -16,5 +16,10 @@ export class BlogController {
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   create(@Body() blogDto: CreateBlogDto) {
     return this.blogService.create(blogDto)
+  }
+
+  @Get("/")
+  myBlogs() {
+    return this.blogService.myBlog()
   }
 }

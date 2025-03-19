@@ -42,4 +42,9 @@ export class BlogService {
     const blog = await this.blogRepository.findOneBy({ slug })
     return !!blog
   }
+
+  async myBlog() {
+    const { id } = this.request.user as UserEntity
+    return this.blogRepository.find({ where: { authorId: id }, order: { id: "DESC" } })
+  }
 }
