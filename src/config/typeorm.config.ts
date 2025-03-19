@@ -1,7 +1,11 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm"
+import { BlogCommentEntity } from "src/modules/blog/entities/comment.entity"
+import { BlogLikesEntity } from "src/modules/blog/entities/like.entity"
 import { CategoryEntity } from "src/modules/category/entities/category.entity"
+import { BlogBookEntity } from "src/modules/blog/entities/bookmark.entity"
 import { ProfileEntity } from "src/modules/user/entities/profile.entity"
 import { UserEntity } from "src/modules/user/entities/user.entity"
+import { BlogEntity } from "src/modules/blog/entities/blog.entity"
 import { OtpEntity } from "src/modules/user/entities/otp.entity"
 
 
@@ -16,6 +20,15 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
     database: DB_NAME,
     autoLoadEntities: false,
     synchronize: true,
-    entities: [UserEntity, ProfileEntity, OtpEntity, CategoryEntity]
+    entities: [
+      OtpEntity,
+      BlogEntity,
+      UserEntity,
+      CategoryEntity,
+      ProfileEntity,
+      BlogLikesEntity,
+      BlogBookEntity,
+      BlogCommentEntity,
+    ]
   }
 }
