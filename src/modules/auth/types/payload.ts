@@ -5,3 +5,9 @@ export type TCookiePayload = {
 export type TAccessTokenPayload = {
   userId: number
 }
+export type TEmailTokenPayload = {
+  email: string
+}
+export type TPhoneTokenPayload = {
+  phone: string
+}
