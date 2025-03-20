@@ -1,18 +1,18 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, Scope, UnauthorizedException } from '@nestjs/common';
 import { BadRequestMessage, NotFoundMessage, PublicMessage } from 'src/common/enums/message.enum';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from '../dto/blog.dto';
 import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.utils';
 import { createSlug, randomId } from 'src/common/utils/slug.util';
-import { BlogCategoryEntity } from './entities/blog-category.entity';
+import { BlogCategoryEntity } from '../entities/blog-category.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RequestWithUser } from 'src/common/types/request-with-user';
-import { CategoryService } from '../category/category.service';
-import { BlogLikesEntity } from './entities/like.entity';
-import { BlogBookEntity } from './entities/bookmark.entity';
+import { CategoryService } from '../../category/category.service';
+import { BlogLikesEntity } from '../entities/like.entity';
+import { BlogBookEntity } from '../entities/bookmark.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Repository } from 'typeorm';
-import { BlogStatus } from './enum/status.enum';
-import { BlogEntity } from './entities/blog.entity';
+import { BlogStatus } from '../enum/status.enum';
+import { BlogEntity } from '../entities/blog.entity';
 import { EntityName } from 'src/common/enums/entity.enums';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { REQUEST } from '@nestjs/core';
@@ -176,4 +176,5 @@ export class BlogService {
     }
     return { message };
   }
+
 }

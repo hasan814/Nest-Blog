@@ -44,10 +44,14 @@ export enum PublicMessage {
   Dislike = "You disliked this item.",
   Bookmark = "Item added to your bookmarks.",
   LoggedIn = "You have successfully logged in.",
+  DeletedComment = "Comment deleted successfully.",
   unBookmark = "Item removed from your bookmarks.",
+  UpdatedComment = "Comment updated successfully.",
+  CreatedComment = "Comment created successfully.",
   VerifiedSuccessfully = "Verification was successful!",
   LogoutSuccess = "You have been logged out successfully.",
 }
+
 
 
 
