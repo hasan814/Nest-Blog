@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { CreateBlogDto, FilterBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enums';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { BlogService } from './blog.service';
@@ -38,5 +38,11 @@ export class BlogController {
   @Delete("/:id")
   delete(@Param("id", ParseIntPipe) id: number) {
     return this.blogService.delete(id)
+  }
+
+  @Put("/:id")
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+  update(@Param("id", ParseIntPipe) id: number, @Body() blogDto: UpdateBlogDto) {
+    return this.blogService.update(id, blogDto)
   }
 }

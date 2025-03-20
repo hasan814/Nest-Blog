@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException, Scope, Unau
 import { createSlug, randomId } from 'src/common/utils/slug.util';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RequestWithUser } from 'src/common/types/request-with-user';
-import { CreateBlogDto, FilterBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { BadRequestMessage, NotFoundMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { BlogEntity } from './entities/blog.entity';
@@ -29,33 +29,36 @@ export class BlogService {
     const user = this.request.user as UserEntity | undefined;
     if (!user) throw new UnauthorizedException("User not found in request.");
     let { title, slug, content, description, image, time_for_study, categories } = blogDto;
-    if (!isArray(categories) && typeof categories === 'string') categories = categories.split(",")
-    else if (!isArray(categories)) throw new BadRequestException(BadRequestMessage.InvalidCategories)
+    if (!Array.isArray(categories) && typeof categories === 'string') categories = categories.split(",");
+    else if (!Array.isArray(categories)) throw new BadRequestException(BadRequestMessage.InvalidCategories);
     blogDto.slug = createSlug(slug ?? title);
-    const isExsit = await this.checkBlogBySlug(blogDto.slug)
-    if (isExsit) slug += `-${randomId}`
+    const isExsit = await this.checkBlogBySlug(blogDto.slug);
+    if (isExsit) {
+      slug += `-${randomId()}`;
+      blogDto.slug = slug;
+    }
     let blog = this.blogRepository.create({
       title,
-      slug: blogDto.slug,
-      description,
-      content,
       image,
-      status: BlogStatus.Draft,
+      content,
+      description,
+      author: user,
       time_for_study,
-      author: user
+      slug: blogDto.slug,
+      status: BlogStatus.Draft,
     });
     blog = await this.blogRepository.save(blog);
     for (const categoryTitle of categories) {
-      let category = await this.categoryService.findOneByTitle(categoryTitle)
-      if (!category) category = await this.categoryService.insertByTitle(categoryTitle)
-      await this.blogCategoryRepository.insert({ blogId: blog.id, categoryId: category.id })
+      let category = await this.categoryService.findOneByTitle(categoryTitle);
+      if (!category) category = await this.categoryService.insertByTitle(categoryTitle);
+      await this.blogCategoryRepository.insert({ blogId: blog.id, categoryId: category.id });
     }
     return { message: PublicMessage.Created, blog };
   }
 
   async checkBlogBySlug(slug: string) {
     const blog = await this.blogRepository.findOneBy({ slug })
-    return !!blog
+    return blog
   }
 
   async myBlog() {
@@ -100,4 +103,41 @@ export class BlogService {
     await this.blogRepository.delete({ id })
     return { message: PublicMessage.Deleted }
   }
+
+  async update(id: number, blogDto: UpdateBlogDto) {
+    const user = this.request.user as UserEntity | undefined;
+    if (!user) throw new UnauthorizedException("User not found in request.");
+    let { title, slug, content, description, image, time_for_study, categories } = blogDto;
+    const blog = await this.checkExistBlogById(id);
+    if (!Array.isArray(categories) && typeof categories === 'string') categories = categories.split(",");
+    else if (!Array.isArray(categories)) throw new BadRequestException(BadRequestMessage.InvalidCategories);
+    let slugData = title ?? slug;
+    if (title) blog.title = title;
+    if (slug) slugData = slug;
+    if (slugData) {
+      const newSlug = createSlug(slugData);
+      const isExist = await this.checkBlogBySlug(newSlug);
+      if (isExist && isExist.id !== id) {
+        slug = `${newSlug}-${randomId()}`;
+      } else {
+        slug = newSlug;
+      }
+      blog.slug = slug;
+    }
+    if (description) blog.description = description;
+    if (content) blog.content = content;
+    if (image) blog.image = image;
+    if (time_for_study) blog.time_for_study = time_for_study;
+    await this.blogRepository.save(blog);
+    if (categories && isArray(categories) && categories.length > 0)
+      await this.blogCategoryRepository.delete({ blogId: blog.id })
+    for (const categoryTitle of categories) {
+      let category = await this.categoryService.findOneByTitle(categoryTitle);
+      if (!category) category = await this.categoryService.insertByTitle(categoryTitle);
+      await this.blogCategoryRepository.insert({ blogId: blog.id, categoryId: category.id })
+
+    }
+    return { message: PublicMessage.Updated, blog };
+  }
+
 }
