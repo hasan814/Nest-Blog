@@ -1,22 +1,21 @@
-import { Body, Controller, Get, Patch, Post, Put, Res, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Patch, Post, Put, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { ChangeEmailDto, ChangePhoneDto, ChangeUsernameDto, ProfileDto } from './dto/profile.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { cookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enums';
 import { TProfileImages } from './types/file';
 import { PublicMessage } from 'src/common/enums/message.enum';
+import { AuthDecorator } from 'src/common/decorators/auth.decorator';
 import { multerStorage } from 'src/common/utils/multer.util';
 import { CheckOtpDto } from '../auth/dto/auth.dto';
 import { UserService } from './user.service';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
-import { AuthGuard } from '../auth/guards/auth.guard';
 import { Response } from 'express';
 
 @Controller('user')
 @ApiTags("User")
-@ApiBearerAuth("Authorization")
-@UseGuards(AuthGuard)
+@AuthDecorator()
 export class UserController {
   constructor(private readonly userService: UserService) { }
 

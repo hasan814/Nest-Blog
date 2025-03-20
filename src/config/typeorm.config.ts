@@ -8,6 +8,7 @@ import { ProfileEntity } from "src/modules/user/entities/profile.entity"
 import { UserEntity } from "src/modules/user/entities/user.entity"
 import { BlogEntity } from "src/modules/blog/entities/blog.entity"
 import { OtpEntity } from "src/modules/user/entities/otp.entity"
+import { ImageEntity } from "src/modules/image/entities/image.entity"
 
 
 export function TypeOrmConfig(): TypeOrmModuleOptions {
@@ -25,12 +26,13 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
       OtpEntity,
       BlogEntity,
       UserEntity,
-      CategoryEntity,
+      ImageEntity,
       ProfileEntity,
-      BlogLikesEntity,
       BlogBookEntity,
+      CategoryEntity,
+      BlogLikesEntity,
       BlogCommentEntity,
-      BlogCategoryEntity
+      BlogCategoryEntity,
     ]
   }
 }

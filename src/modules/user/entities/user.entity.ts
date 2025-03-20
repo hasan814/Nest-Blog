@@ -3,6 +3,7 @@ import { BlogCommentEntity } from "src/modules/blog/entities/comment.entity";
 import { BlogLikesEntity } from "src/modules/blog/entities/like.entity";
 import { BlogBookEntity } from "src/modules/blog/entities/bookmark.entity";
 import { ProfileEntity } from "./profile.entity";
+import { ImageEntity } from "src/modules/image/entities/image.entity";
 import { BaseEntity } from "src/common/abstracts/base.entity";
 import { EntityName } from "src/common/enums/entity.enums";
 import { BlogEntity } from "src/modules/blog/entities/blog.entity";
@@ -59,6 +60,9 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => BlogCommentEntity, comment => comment.user)
   blog_comments: BlogCommentEntity[]
+
+  @OneToMany(() => ImageEntity, image => image.user)
+  images: ImageEntity
 
   @CreateDateColumn()
   created_at: Date
