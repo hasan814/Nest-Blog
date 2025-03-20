@@ -14,11 +14,13 @@ export enum BadRequestMessage {
 export enum AuthMessage {
   TryAgain = "An error occurred. Please try again!",
   LoginAgain = "Your session has expired. Please log in again.",
-  NotFoundAccount = "No account was found with the provided details.",
-  ExpiredCode = "The verification code has expired. Please request a new one.",
-  AlreadyExistAccount = "An account with this information already exists.",
   LoginRequired = "You must be logged in to access this resource.",
+  Blocked = "Your account has been blocked. Please contact support.",
+  NotFoundAccount = "No account was found with the provided details.",
+  AlreadyExistAccount = "An account with this information already exists.",
+  ExpiredCode = "The verification code has expired. Please request a new one.",
 }
+
 
 export enum NotFoundMessage {
   UserNotFound = "The specified user was not found.",
@@ -54,7 +56,10 @@ export enum PublicMessage {
   CreatedComment = "Comment created successfully.",
   VerifiedSuccessfully = "Verification was successful!",
   LogoutSuccess = "You have been logged out successfully.",
+  Block = "You have blocked this item.",
+  UnBlock = "You have unblocked this item."
 }
+
 
 
 export enum ConflictMessage {

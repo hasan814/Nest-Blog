@@ -8,7 +8,7 @@ import { TProfileImages } from './types/file';
 import { PublicMessage } from 'src/common/enums/message.enum';
 import { AuthDecorator } from 'src/common/decorators/auth.decorator';
 import { multerStorage } from 'src/common/utils/multer.util';
-import { CheckOtpDto } from '../auth/dto/auth.dto';
+import { CheckOtpDto, UserBlockDto } from '../auth/dto/auth.dto';
 import { UserService } from './user.service';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { CanAccess } from 'src/common/decorators/role.decorator';
@@ -96,6 +96,13 @@ export class UserController {
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   async verifyPhone(@Body() phoneDto: CheckOtpDto) {
     return this.userService.verifyPhone(phoneDto.code)
+  }
+
+  @Post("/block")
+  @CanAccess(Roles.Admin)
+  @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+  async block(@Body() blockDto: UserBlockDto) {
+    return this.userService.blockToggle(blockDto)
   }
 
   @Patch("/change-username")

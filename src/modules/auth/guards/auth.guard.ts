@@ -1,7 +1,8 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthService } from "../services/auth.service";
 import { AuthMessage } from "src/common/enums/message.enum";
 import { UserEntity } from "src/modules/user/entities/user.entity";
+import { UserStatus } from "src/modules/user/enum/status.enum";
 import { SKIP_AUTH } from "src/common/decorators/skip-auth.decorator";
 import { Reflector } from "@nestjs/core";
 import { Request } from "express";
@@ -20,6 +21,7 @@ export class AuthGuard implements CanActivate {
     const user = await this.authService.validateAccessToken(token);
     if (!user) throw new UnauthorizedException(AuthMessage.LoginAgain);
     request.user = user;
+    if (request?.user?.status === UserStatus.Block) throw new ForbiddenException(AuthMessage.Blocked)
     return true;
   }
 

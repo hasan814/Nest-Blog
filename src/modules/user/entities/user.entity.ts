@@ -3,13 +3,13 @@ import { BlogCommentEntity } from "src/modules/blog/entities/comment.entity";
 import { BlogLikesEntity } from "src/modules/blog/entities/like.entity";
 import { BlogBookEntity } from "src/modules/blog/entities/bookmark.entity";
 import { ProfileEntity } from "./profile.entity";
+import { FollowEntity } from "./follow.entity";
 import { ImageEntity } from "src/modules/image/entities/image.entity";
 import { BaseEntity } from "src/common/abstracts/base.entity";
 import { EntityName } from "src/common/enums/entity.enums";
 import { BlogEntity } from "src/modules/blog/entities/blog.entity";
 import { OtpEntity } from "./otp.entity";
 import { Roles } from "src/common/enums/role.enum";
-import { FollowEntity } from "./follow.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -24,6 +24,9 @@ export class UserEntity extends BaseEntity {
 
   @Column({ default: Roles.User })
   role: string
+
+  @Column({ nullable: true })
+  status: string | null
 
   @Column({ nullable: true })
   new_email: string
