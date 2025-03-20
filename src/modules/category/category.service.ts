@@ -2,11 +2,11 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { ConflictMessage, NotFoundMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.utils';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Repository } from 'typeorm';
-import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -18,6 +18,11 @@ export class CategoryService {
     const category = this.categoryRepository.create({ title, priority })
     await this.categoryRepository.save(category)
     return { message: PublicMessage.Created }
+  }
+
+  async insertByTitle(title: string) {
+    const category = this.categoryRepository.create({ title })
+    return await this.categoryRepository.save(category)
   }
 
   async checkExistAndResolveTitle(title: string) {
@@ -36,6 +41,10 @@ export class CategoryService {
     const category = await this.categoryRepository.findOneBy({ id })
     if (!category) throw new NotFoundException(NotFoundMessage.NotFoundCategory)
     return category
+  }
+
+  async findOneByTitle(title: string) {
+    return await this.categoryRepository.findOneBy({ title })
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {

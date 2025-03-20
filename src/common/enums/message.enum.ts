@@ -3,7 +3,8 @@ export enum BadRequestMessage {
   InvalidRegisterData = "The provided registration data is incorrect.",
   SomeThingWrong = "Something went wrong. Please try again later.",
   InvalidEmail = "The provided email is invalid. Please enter a valid email address.",
-  InvalidPhone = "The provided phone is invalid. Please enter a valid phone address."
+  InvalidPhone = "The provided phone number is invalid. Please enter a valid phone number.",
+  InvalidCategories = "The selected categories are invalid. Please select valid categories.",
 }
 
 

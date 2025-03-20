@@ -1,4 +1,5 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm"
+import { BlogCategoryEntity } from "src/modules/blog/entities/blog-category.entity"
 import { BlogCommentEntity } from "src/modules/blog/entities/comment.entity"
 import { BlogLikesEntity } from "src/modules/blog/entities/like.entity"
 import { CategoryEntity } from "src/modules/category/entities/category.entity"
@@ -29,6 +30,7 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
       BlogLikesEntity,
       BlogBookEntity,
       BlogCommentEntity,
+      BlogCategoryEntity
     ]
   }
 }

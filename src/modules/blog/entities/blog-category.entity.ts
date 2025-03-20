@@ -1,7 +1,8 @@
-import { BaseEntity, Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { CategoryEntity } from "src/modules/category/entities/category.entity";
 import { BlogEntity } from "./blog.entity";
 import { EntityName } from "src/common/enums/entity.enums";
+import { BaseEntity } from "src/common/abstracts/base.entity";
 
 
 @Entity(EntityName.BlogCategory)
