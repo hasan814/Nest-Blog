@@ -45,7 +45,7 @@ export class BlogService {
     });
     blog = await this.blogRepository.save(blog);
     for (const categoryTitle of categories) {
-      let category = await this.categoryService.findOneByTitle(title)
+      let category = await this.categoryService.findOneByTitle(categoryTitle)
       if (!category) category = await this.categoryService.insertByTitle(categoryTitle)
       await this.blogCategoryRepository.insert({ blogId: blog.id, categoryId: category.id })
     }
