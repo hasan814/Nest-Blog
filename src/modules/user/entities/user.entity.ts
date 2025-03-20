@@ -26,7 +26,7 @@ export class UserEntity extends BaseEntity {
   role: string
 
   @Column({ nullable: true })
-  status: string | null
+  status: string
 
   @Column({ nullable: true })
   new_email: string

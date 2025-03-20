@@ -239,7 +239,7 @@ export class UserService {
     let message = PublicMessage.Block
     if (user.status === UserStatus.Block) {
       message = PublicMessage.UnBlock
-      await this.userRepository.update({ id: userId }, { status: null })
+      await this.userRepository.update({ id: userId }, { status: 'inactive' })
     } else {
       await this.userRepository.update({ id: userId }, { status: UserStatus.Block })
     }
