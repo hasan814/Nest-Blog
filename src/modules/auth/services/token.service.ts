@@ -1,4 +1,4 @@
-import { TAccessTokenPayload, TCookiePayload, TEmailTokenPayload, TPhoneTokenPayload } from "./types/payload";
+import { TAccessTokenPayload, TCookiePayload, TEmailTokenPayload, TPhoneTokenPayload } from "../types/payload";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthMessage, BadRequestMessage } from "src/common/enums/message.enum";
 import { JwtService } from "@nestjs/jwt";

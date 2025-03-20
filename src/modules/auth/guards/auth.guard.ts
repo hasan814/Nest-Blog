@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { AuthService } from "../auth.service";
+import { AuthService } from "../services/auth.service";
 import { AuthMessage } from "src/common/enums/message.enum";
 import { UserEntity } from "src/modules/user/entities/user.entity";
 import { SKIP_AUTH } from "src/common/decorators/skip-auth.decorator";

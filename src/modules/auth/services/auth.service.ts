@@ -3,17 +3,17 @@ import { isEmail, isMobilePhone } from 'class-validator';
 import { cookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { Request, Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProfileEntity } from '../user/entities/profile.entity';
-import { AuthResponse } from './types/response';
+import { ProfileEntity } from '../../user/entities/profile.entity';
+import { AuthResponse } from '../types/response';
 import { TokenService } from './token.service';
-import { AuthMethod } from './enums/method.enum';
+import { AuthMethod } from '../enums/method.enum';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { Repository } from 'typeorm';
-import { UserEntity } from '../user/entities/user.entity';
-import { OtpEntity } from '../user/entities/otp.entity';
+import { UserEntity } from '../../user/entities/user.entity';
+import { OtpEntity } from '../../user/entities/otp.entity';
 import { randomInt } from 'crypto';
-import { AuthType } from './enums/type.enum';
-import { AuthDto } from './dto/auth.dto';
+import { AuthType } from '../enums/type.enum';
+import { AuthDto } from '../dto/auth.dto';
 import { REQUEST } from '@nestjs/core';
 
 import {
@@ -24,6 +24,7 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { KavenegarService } from 'src/modules/http/kavenegar.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -35,7 +36,8 @@ export class AuthService {
     @InjectRepository(OtpEntity)
     private otpRepository: Repository<OtpEntity>,
     @Inject(REQUEST) private request: Request,
-    private tokenService: TokenService
+    private kavehnegarService: KavenegarService,
+    private tokenService: TokenService,
   ) { }
 
   async userExistence(authDto: AuthDto, res: Response) {
@@ -44,25 +46,27 @@ export class AuthService {
     switch (type) {
       case AuthType.Login:
         result = await this.login(method, username);
+        await this.sendOtp(method, username, result.code)
         return this.sendResponse(res, result)
       case AuthType.Register:
         result = await this.register(method, username);
+        await this.sendOtp(method, username, result.code)
         return this.sendResponse(res, result)
       default:
         throw new UnauthorizedException();
     }
   }
 
-  async login(method: AuthMethod, username: string): Promise<AuthResponse> {
+  async login(method: AuthMethod, username: string) {
     const validUsername = this.usernameValidation(method, username);
     const user = await this.checkExistUser(method, validUsername);
     if (!user) throw new UnauthorizedException(AuthMessage.NotFoundAccount);
     const otp = await this.saveOtp(user.id, method)
     const token = this.tokenService.createOtpToken({ userId: user.id })
-    return { token, code: otp.code }
+    return { token, code: otp.code, mobile: user.phone }
   }
 
-  async register(method: AuthMethod, username: string): Promise<AuthResponse> {
+  async register(method: AuthMethod, username: string) {
     const validUsername = this.usernameValidation(method, username);
     let user = await this.checkExistUser(method, validUsername);
     if (user) throw new ConflictException(AuthMessage.AlreadyExistAccount);
@@ -77,9 +81,9 @@ export class AuthService {
   }
 
   async sendResponse(res: Response, result: AuthResponse) {
-    const { token, code } = result
+    const { token } = result
     res.cookie(CookieKeys.OTP, token, cookiesOptionsToken())
-    res.json({ message: PublicMessage.SentOtp, code })
+    res.json({ message: PublicMessage.SentOtp })
   }
 
   async checkOtp(code: string) {
@@ -95,6 +99,14 @@ export class AuthService {
     if (otp.method === AuthMethod.Email) await this.userRepository.update({ id: userId }, { verify_email: true })
     else if (otp.method === AuthMethod.Phone) await this.userRepository.update({ id: userId }, { verify_email: true })
     return { message: PublicMessage.LoggedIn, accessToken }
+  }
+
+  async sendOtp(method: AuthMethod, username: string, code: string) {
+    if (method === AuthMethod.Email) {
+      // SendEmail
+    } else if (method === AuthMethod.Phone) {
+      await this.kavehnegarService.sendVerificationSms(username, code)
+    }
   }
 
   async saveOtp(userId: number, method: AuthMethod) {

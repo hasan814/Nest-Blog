@@ -1,3 +1,4 @@
+import { CustomHttpModule } from '../http/http.module';
 import { CategoryModule } from '../category/category.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfig } from 'src/config/typeorm.config';
@@ -21,6 +22,7 @@ import { join } from 'path';
     AuthModule,
     ImageModule,
     CategoryModule,
+    CustomHttpModule,
   ],
   controllers: [],
   providers: [],

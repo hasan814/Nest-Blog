@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { AuthDto, CheckOtpDto } from './dto/auth.dto';
+import { AuthDto, CheckOtpDto } from '../dto/auth.dto';
 import { Request, Response } from 'express';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enums';
-import { AuthService } from './auth.service';
-import { AuthGuard } from './guards/auth.guard';
+import { AuthService } from '../services/auth.service';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('auth')
 @ApiTags("Auth")

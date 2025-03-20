@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Injectable, NestMiddleware } from "@nestjs/common";
-import { AuthService } from "src/modules/auth/auth.service";
+import { AuthService } from "src/modules/auth/services/auth.service";
 import { isJWT } from "class-validator";
 
 @Injectable()
