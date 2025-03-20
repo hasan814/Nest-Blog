@@ -1,8 +1,10 @@
+import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiConsumes, ApiTags } from "@nestjs/swagger";
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
 import { BlogCommentService } from "../services/comment.service";
 import { CreateCommentDto } from "../dto/comment.dto";
 import { SwaggerConsumes } from "src/common/enums/swagger-consumes.enums";
+import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { Pagination } from "src/common/decorators/pagination.decorator";
 import { AuthGuard } from "src/modules/auth/guards/auth.guard";
 
 
@@ -12,6 +14,12 @@ import { AuthGuard } from "src/modules/auth/guards/auth.guard";
 @UseGuards(AuthGuard)
 export class BlogCommentController {
   constructor(private readonly blogCommentService: BlogCommentService) { }
+
+  @Get("/")
+  @Pagination()
+  find(@Query() paginationDto: PaginationDto) {
+    return this.blogCommentService.find(paginationDto)
+  }
 
   @Post("/")
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
