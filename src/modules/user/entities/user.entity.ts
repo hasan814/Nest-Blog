@@ -8,6 +8,7 @@ import { BaseEntity } from "src/common/abstracts/base.entity";
 import { EntityName } from "src/common/enums/entity.enums";
 import { BlogEntity } from "src/modules/blog/entities/blog.entity";
 import { OtpEntity } from "./otp.entity";
+import { Roles } from "src/common/enums/role.enum";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -19,6 +20,9 @@ export class UserEntity extends BaseEntity {
 
   @Column({ unique: true, nullable: true })
   email: string
+
+  @Column({ default: Roles.User })
+  role: string
 
   @Column({ nullable: true })
   new_email: string

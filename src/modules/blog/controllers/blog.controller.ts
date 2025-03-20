@@ -9,6 +9,8 @@ import { Pagination } from 'src/common/decorators/pagination.decorator';
 import { FilterBlog } from 'src/common/decorators/filter.decorator';
 import { AuthGuard } from '../../auth/guards/auth.guard';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorator';
+import { Roles } from 'src/common/enums/role.enum';
+import { CanAccess } from 'src/common/decorators/role.decorator';
 
 @Controller('blog')
 @ApiTags("Blog")
@@ -53,6 +55,7 @@ export class BlogController {
   }
 
   @Delete("/:id")
+  @CanAccess(Roles.Admin)
   delete(@Param("id", ParseIntPipe) id: number) {
     return this.blogService.delete(id)
   }
