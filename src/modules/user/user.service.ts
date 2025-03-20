@@ -17,6 +17,8 @@ import { REQUEST } from '@nestjs/core';
 import { isDate } from 'class-validator';
 import { Gender } from './enum/gender.enum';
 import { EntityName } from 'src/common/enums/entity.enums';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.utils';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -94,10 +96,50 @@ export class UserService {
       .getOne()
   }
 
-  find() {
-    return this.userRepository.findOne({
-      where: {}
-    });
+  async find(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto)
+    const [users, count] = await this.userRepository.findAndCount({ where: {}, skip, take: limit })
+    return { pagination: paginationGenerator(count, page, limit), users }
+  }
+
+  async following(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto)
+    const { id: userId } = this.request.user as UserEntity
+    const [following, count] = await this.followRepository.findAndCount({
+      where: { followerId: userId },
+      relations: { following: { profile: true } },
+      select: {
+        id: true,
+        following: {
+          id: true,
+          username: true,
+          profile: { id: true, nick_name: true, bio: true, image_profile: true, bg_image: true }
+        }
+      },
+      skip,
+      take: limit
+    })
+    return { pagination: paginationGenerator(count, page, limit), following }
+  }
+
+  async followers(paginationDto: PaginationDto) {
+    const { limit, page, skip } = paginationSolver(paginationDto)
+    const { id: userId } = this.request.user as UserEntity
+    const [followers, count] = await this.followRepository.findAndCount({
+      where: { followingId: userId },
+      relations: { follower: { profile: true } },
+      select: {
+        id: true,
+        follower: {
+          id: true,
+          username: true,
+          profile: { id: true, nick_name: true, bio: true, image_profile: true, bg_image: true }
+        }
+      },
+      skip,
+      take: limit,
+    })
+    return { pagination: paginationGenerator(count, page, limit), followers }
   }
 
   async changeEmail(email: string) {
