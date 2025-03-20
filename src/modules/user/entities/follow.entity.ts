@@ -11,10 +11,10 @@ export class FollowEntity extends BaseEntity {
   @Column()
   followerId: number
 
-  @ManyToOne(() => UserEntity, user => user.following, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, user => user.followers, { onDelete: 'CASCADE' })
   following: UserEntity
 
-  @ManyToOne(() => UserEntity, user => user.followers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, user => user.following, { onDelete: 'CASCADE' })
   follower: UserEntity
 
   @CreateDateColumn()

@@ -16,6 +16,7 @@ import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { isDate } from 'class-validator';
 import { Gender } from './enum/gender.enum';
+import { EntityName } from 'src/common/enums/entity.enums';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -83,12 +84,14 @@ export class UserService {
   }
 
   profile() {
-    const user = this.request.user as UserEntity | undefined;
+    const user = this.request.user as UserEntity;
     if (!user) throw new UnauthorizedException('User not found in request.');
-    return this.userRepository.findOne({
-      where: { id: user.id },
-      relations: ['profile']
-    });
+    return this.userRepository.createQueryBuilder(EntityName.User)
+      .where({ id: user.id })
+      .leftJoinAndSelect("user.profile", "profile")
+      .loadRelationCountAndMap("user.followers", "user.followers")
+      .loadRelationCountAndMap("user.following", "user.following")
+      .getOne()
   }
 
   find() {

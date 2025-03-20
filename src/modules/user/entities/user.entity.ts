@@ -69,10 +69,10 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => ImageEntity, image => image.user)
   images: ImageEntity[]
 
-  @OneToMany(() => FollowEntity, follow => follow.follower)
+  @OneToMany(() => FollowEntity, follow => follow.following)
   followers: FollowEntity[]
 
-  @OneToMany(() => FollowEntity, follow => follow.following)
+  @OneToMany(() => FollowEntity, follow => follow.follower)
   following: FollowEntity[]
 
   @CreateDateColumn()
