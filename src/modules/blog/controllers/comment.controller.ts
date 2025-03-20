@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { BlogCommentService } from "../services/comment.service";
 import { CreateCommentDto } from "../dto/comment.dto";
@@ -25,6 +25,16 @@ export class BlogCommentController {
   @ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
   create(@Body() commentDto: CreateCommentDto) {
     return this.blogCommentService.create(commentDto)
+  }
+
+  @Put('/accept/:id')
+  accept(@Param("id", ParseIntPipe) id: number) {
+    return this.blogCommentService.accept(id)
+  }
+
+  @Put('/reject/:id')
+  reject(@Param("id", ParseIntPipe) id: number) {
+    return this.blogCommentService.reject(id)
   }
 
 }
