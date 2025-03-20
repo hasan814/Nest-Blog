@@ -9,6 +9,7 @@ import { UserEntity } from "src/modules/user/entities/user.entity"
 import { BlogEntity } from "src/modules/blog/entities/blog.entity"
 import { OtpEntity } from "src/modules/user/entities/otp.entity"
 import { ImageEntity } from "src/modules/image/entities/image.entity"
+import { FollowEntity } from "src/modules/user/entities/follow.entity"
 
 
 export function TypeOrmConfig(): TypeOrmModuleOptions {
@@ -27,6 +28,7 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
       BlogEntity,
       UserEntity,
       ImageEntity,
+      FollowEntity,
       ProfileEntity,
       BlogBookEntity,
       CategoryEntity,

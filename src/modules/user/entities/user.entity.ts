@@ -9,6 +9,7 @@ import { EntityName } from "src/common/enums/entity.enums";
 import { BlogEntity } from "src/modules/blog/entities/blog.entity";
 import { OtpEntity } from "./otp.entity";
 import { Roles } from "src/common/enums/role.enum";
+import { FollowEntity } from "./follow.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -66,7 +67,13 @@ export class UserEntity extends BaseEntity {
   blog_comments: BlogCommentEntity[]
 
   @OneToMany(() => ImageEntity, image => image.user)
-  images: ImageEntity
+  images: ImageEntity[]
+
+  @OneToMany(() => FollowEntity, follow => follow.follower)
+  followers: FollowEntity[]
+
+  @OneToMany(() => FollowEntity, follow => follow.following)
+  following: FollowEntity[]
 
   @CreateDateColumn()
   created_at: Date
