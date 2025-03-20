@@ -46,6 +46,8 @@ export enum PublicMessage {
   Dislike = "You disliked this item.",
   Bookmark = "Item added to your bookmarks.",
   LoggedIn = "You have successfully logged in.",
+  UnFollowed = "You have unfollowed this item.",
+  Followed = "You are now following this item.",
   DeletedComment = "Comment deleted successfully.",
   unBookmark = "Item removed from your bookmarks.",
   UpdatedComment = "Comment updated successfully.",
@@ -53,9 +55,6 @@ export enum PublicMessage {
   VerifiedSuccessfully = "Verification was successful!",
   LogoutSuccess = "You have been logged out successfully.",
 }
-
-
-
 
 
 export enum ConflictMessage {

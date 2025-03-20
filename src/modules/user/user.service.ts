@@ -1,10 +1,11 @@
-import { BadRequestException, ConflictException, Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException, Scope, UnauthorizedException } from '@nestjs/common';
 import { AuthMessage, BadRequestMessage, ConflictMessage, NotFoundMessage, PublicMessage } from 'src/common/enums/message.enum';
 import { Repository, DeepPartial } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TProfileImages } from './types/file';
 import { ProfileEntity } from './entities/profile.entity';
 import { TokenService } from '../auth/services/token.service';
+import { FollowEntity } from './entities/follow.entity';
 import { AuthService } from '../auth/services/auth.service';
 import { AuthMethod } from '../auth/enums/method.enum';
 import { ProfileDto } from './dto/profile.dto';
@@ -22,6 +23,7 @@ export class UserService {
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
+    @InjectRepository(FollowEntity) private followRepository: Repository<FollowEntity>,
     @Inject(REQUEST) private request: Request,
     private authService: AuthService,
     private tokenService: TokenService
@@ -86,6 +88,12 @@ export class UserService {
     return this.userRepository.findOne({
       where: { id: user.id },
       relations: ['profile']
+    });
+  }
+
+  find() {
+    return this.userRepository.findOne({
+      where: {}
     });
   }
 
@@ -160,6 +168,21 @@ export class UserService {
     else if (existingUser && existingUser.id === loggedInUser.id) return { message: PublicMessage.Updated };
     await this.userRepository.update({ id: loggedInUser.id }, { username });
     return { message: PublicMessage.Updated };
+  }
+
+  async followToggle(followingId: number) {
+    const { id: userId } = this.request.user as UserEntity
+    const following = await this.userRepository.findOneBy({ id: followingId })
+    if (!following) throw new NotFoundException(NotFoundMessage.UserNotFound)
+    const isFollowing = await this.followRepository.findOneBy({ followingId, followerId: userId })
+    let message = PublicMessage.Followed
+    if (isFollowing) {
+      message = PublicMessage.UnFollowed
+      await this.followRepository.remove(isFollowing)
+    } else {
+      await this.followRepository.insert({ followingId, followerId: userId })
+    }
+    return { message }
   }
 
 }

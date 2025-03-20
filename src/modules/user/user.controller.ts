@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Patch, Post, Put, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { ChangeEmailDto, ChangePhoneDto, ChangeUsernameDto, ProfileDto } from './dto/profile.dto';
+import { ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { cookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { SwaggerConsumes } from 'src/common/enums/swagger-consumes.enums';
 import { TProfileImages } from './types/file';
@@ -11,7 +11,9 @@ import { multerStorage } from 'src/common/utils/multer.util';
 import { CheckOtpDto } from '../auth/dto/auth.dto';
 import { UserService } from './user.service';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
+import { CanAccess } from 'src/common/decorators/role.decorator';
 import { Response } from 'express';
+import { Roles } from 'src/common/enums/role.enum';
 
 @Controller('user')
 @ApiTags("User")
@@ -38,6 +40,18 @@ export class UserController {
   @Get("/profile")
   profile() {
     return this.userService.profile()
+  }
+
+  @Get('/list')
+  @CanAccess(Roles.Admin)
+  find() {
+    return this.userService.find()
+  }
+
+  @Get('/follow/:followingId')
+  @ApiParam({ name: "followingId" })
+  follow(@Param('followingId', ParseIntPipe) userId: number) {
+    return this.userService.followToggle(userId)
   }
 
   @Patch("/change-email")
