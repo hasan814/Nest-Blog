@@ -1,25 +1,30 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, Scope, UnauthorizedException } from '@nestjs/common';
+import { BadRequestMessage, NotFoundMessage, PublicMessage } from 'src/common/enums/message.enum';
+import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
+import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.utils';
 import { createSlug, randomId } from 'src/common/utils/slug.util';
+import { BlogCategoryEntity } from './entities/blog-category.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RequestWithUser } from 'src/common/types/request-with-user';
-import { CreateBlogDto, FilterBlogDto, UpdateBlogDto } from './dto/blog.dto';
+import { CategoryService } from '../category/category.service';
+import { BlogLikesEntity } from './entities/like.entity';
+import { BlogBookEntity } from './entities/bookmark.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { BadRequestMessage, NotFoundMessage, PublicMessage } from 'src/common/enums/message.enum';
-import { BlogEntity } from './entities/blog.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { BlogStatus } from './enum/status.enum';
+import { BlogEntity } from './entities/blog.entity';
+import { EntityName } from 'src/common/enums/entity.enums';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { REQUEST } from '@nestjs/core';
-import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.utils';
-import { CategoryService } from '../category/category.service';
 import { isArray } from 'class-validator';
-import { BlogCategoryEntity } from './entities/blog-category.entity';
-import { EntityName } from 'src/common/enums/entity.enums';
+
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
   constructor(
     @InjectRepository(BlogEntity) private blogRepository: Repository<BlogEntity>,
+    @InjectRepository(BlogLikesEntity) private blogLikeRepository: Repository<BlogLikesEntity>,
+    @InjectRepository(BlogBookEntity) private blogBookmarkRepository: Repository<BlogBookEntity>,
     @InjectRepository(BlogCategoryEntity) private blogCategoryRepository: Repository<BlogCategoryEntity>,
     @Inject(REQUEST) private request: RequestWithUser,
     private categoryService: CategoryService
@@ -83,8 +88,12 @@ export class BlogService {
     const [blogs, count] = await this.blogRepository.createQueryBuilder(EntityName.Blog)
       .leftJoin("blog.categories", "categories")
       .leftJoin("categories.category", "category")
-      .addSelect(['categories.id', 'category.title'])
+      .leftJoin("blog.author", "author")
+      .leftJoin("author.profile", "profile")
+      .addSelect(['categories.id', 'category.title', 'author.username', 'author.id', 'profile.nick_name'])
       .where(where, { category, search })
+      .loadRelationCountAndMap('blog.likes', 'blog.likes')
+      .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
       .orderBy('blog.id', 'DESC')
       .skip(skip)
       .take(limit)
@@ -140,4 +149,31 @@ export class BlogService {
     return { message: PublicMessage.Updated, blog };
   }
 
+  async likeToggle(blogId: number) {
+    const { id: userId } = this.request.user as UserEntity;
+    const blog = await this.checkExistBlogById(blogId);
+    const isLiked = await this.blogLikeRepository.findOneBy({ userId, blogId });
+    let message = PublicMessage.Like;
+    if (isLiked) {
+      await this.blogLikeRepository.delete({ id: isLiked.id });
+      message = PublicMessage.Dislike;
+    } else {
+      await this.blogLikeRepository.insert({ blogId, userId });
+    }
+    return { message };
+  }
+
+  async bookmarkToggle(blogId: number) {
+    const { id: userId } = this.request.user as UserEntity;
+    const blog = await this.checkExistBlogById(blogId);
+    const isBookmarked = await this.blogBookmarkRepository.findOneBy({ userId, blogId });
+    let message = PublicMessage.Bookmark;
+    if (isBookmarked) {
+      await this.blogBookmarkRepository.delete({ id: isBookmarked.id });
+      message = PublicMessage.unBookmark;
+    } else {
+      await this.blogBookmarkRepository.insert({ blogId, userId });
+    }
+    return { message };
+  }
 }

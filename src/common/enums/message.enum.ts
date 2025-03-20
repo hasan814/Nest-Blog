@@ -35,15 +35,21 @@ export enum ValidationMessage {
 }
 
 export enum PublicMessage {
+  Like = "You liked this item.",
   Created = "Created successfully.",
   Deleted = "Deleted successfully.",
   Updated = "Updated successfully.",
-  Inserted = "Inserted successfully.",
   SentOtp = "OTP sent successfully!",
+  Inserted = "Inserted successfully.",
+  Dislike = "You disliked this item.",
+  Bookmark = "Item added to your bookmarks.",
   LoggedIn = "You have successfully logged in.",
+  unBookmark = "Item removed from your bookmarks.",
   VerifiedSuccessfully = "Verification was successful!",
   LogoutSuccess = "You have been logged out successfully.",
 }
+
+
 
 
 export enum ConflictMessage {
