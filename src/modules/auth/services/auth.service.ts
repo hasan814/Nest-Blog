@@ -4,7 +4,7 @@ import { cookiesOptionsToken } from 'src/common/utils/cookie.util';
 import { Request, Response } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProfileEntity } from '../../user/entities/profile.entity';
-import { AuthResponse } from '../types/response';
+import { AuthResponse, GoogleUser } from '../types/response';
 import { TokenService } from './token.service';
 import { AuthMethod } from '../enums/method.enum';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
@@ -25,6 +25,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { KavenegarService } from 'src/modules/http/kavenegar.service';
+import { randomId } from 'src/common/utils/slug.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -165,6 +166,27 @@ export class AuthService {
       default:
         throw new UnauthorizedException('Username data is not valid!');
     }
+  }
+
+  async googleAuth(userData: GoogleUser) {
+    const { email, firstName, lastName, profile_image } = userData
+    let token: string
+    let user = await this.userRepository.findOneBy({ email })
+    if (user) {
+      token = this.tokenService.createOtpToken({ userId: user.id })
+    } else {
+      user = this.userRepository.create({
+        email,
+        verify_email: true,
+        username: email?.split("@")['0'] + randomId()
+      })
+      user = await this.userRepository.save(user)
+      let profile = this.profileRepository.create({ userId: user.id, nick_name: `${firstName} ${lastName}`, image_profile: profile_image })
+      profile = await this.profileRepository.save(profile)
+      await this.userRepository.save(user)
+      token = this.tokenService.createAccessToken({ userId: user.id })
+    }
+    return { token }
   }
 
 }
