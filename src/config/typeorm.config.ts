@@ -22,7 +22,7 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
     password: DB_PASSWORD,
     database: DB_NAME,
     autoLoadEntities: false,
-    synchronize: true,
+    synchronize: false,
     entities: [
       OtpEntity,
       BlogEntity,

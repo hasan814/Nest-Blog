@@ -250,5 +250,4 @@ export class BlogService {
     return { blog, isLiked, isBookmarked, commentsData, suggestBlogs };
   }
 
-
 }
